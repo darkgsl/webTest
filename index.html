@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Конвертер валют | НБРБ</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Конвертер валют</h1>
+    <p>Курсы обновляются с сайта НБРБ</p>
+
+    <div class="input-group">
+      <label for="blr">Белорусские рубли (BYN):</label>
+      <input type="number" id="blr" placeholder="Введите сумму" />
+    </div>
+
+    <div class="input-group">
+      <label for="usd">Доллары США (USD):</label>
+      <input type="number" id="usd" placeholder="Введите сумму" />
+    </div>
+
+    <div class="input-group">
+      <label for="rub">Российские рубли (RUB):</label>
+      <input type="number" id="rub" placeholder="Введите сумму" />
+    </div>
+
+    <div class="info">
+      <p id="rate-usd"></p>
+      <p id="rate-rub"></p>
+    </div>
+
+    <footer>
+      <p>Курсы взяты с <a href="https://www.nbrb.by" target="_blank">НБРБ</a></p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
