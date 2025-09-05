@@ -1,43 +1,38 @@
 let rateUSD = null;
 let rateRUB = null;
 
+// Загружаем курсы по ID
 async function loadRates() {
   try {
-    const response = await fetch('https://www.nbrb.by/api/exrates/rates');
-    
-    if (!response.ok) {
-      throw new Error(`Ошибка HTTP: ${response.status}`);
-    }
+    // Параллельно загружаем USD и RUB
+    const [responseUSD, responseRUB] = await Promise.all([
+      fetch('https://www.nbrb.by/api/exrates/rates/145'), // USD к BYN
+      fetch('https://www.nbrb.by/api/exrates/rates/298')  // RUB к BYN (за 100 рублей)
+    ]);
 
-    const data = await response.json();
+    if (!responseUSD.ok) throw new Error(`Ошибка загрузки USD: ${responseUSD.status}`);
+    if (!responseRUB.ok) throw new Error(`Ошибка загрузки RUB: ${responseRUB.status}`);
 
-    console.log('Данные с НБРБ:', data); // Показываем в консоли
+    const dataUSD = await responseUSD.json();
+    const dataRUB = await responseRUB.json();
 
-    const usd = data.find(item => item.Cur_ID === 145);
-    const rub = data.find(item => item.Cur_ID === 298);
+    rateUSD = dataUSD.Cur_OfficialRate;
+    rateRUB = dataRUB.Cur_OfficialRate / 100; // переводим с 100 рублей на 1 рубль
 
-    if (!usd) {
-      throw new Error('USD (145) не найден в данных');
-    }
-    if (!rub) {
-      throw new Error('RUB (298) не найден в данных');
-    }
-
-    rateUSD = usd.Cur_OfficialRate;
-    rateRUB = rub.Cur_OfficialRate / 100; // за 1 рубль
-
+    // Показываем курсы на странице
     document.getElementById('rate-usd').textContent = `1 USD = ${rateUSD.toFixed(2)} BYN`;
     document.getElementById('rate-rub').textContent = `1 RUB = ${rateRUB.toFixed(4)} BYN`;
 
-    // Пересчитать, если уже есть значения
+    // Пересчитываем, если уже есть значения
     convert();
   } catch (err) {
     console.error('Ошибка загрузки курсов:', err);
-    document.getElementById('rate-usd').textContent = 'Ошибка загрузки курсов USD';
-    document.getElementById('rate-rub').textContent = err.message || 'Неизвестная ошибка';
+    document.getElementById('rate-usd').textContent = 'Ошибка: не удалось загрузить USD';
+    document.getElementById('rate-rub').textContent = err.message || 'Проверьте подключение';
   }
 }
 
+// Пересчёт валют
 function convert() {
   const blrInput = document.getElementById('blr');
   const usdInput = document.getElementById('usd');
@@ -63,13 +58,16 @@ function convert() {
   }
 }
 
+// Обработчик ввода
 function onInputChange() {
   convert();
 }
 
+// При загрузке страницы
 window.onload = function () {
-  loadRates();
+  loadRates(); // Загружаем курсы
 
+  // Назначаем события на поля ввода
   ['blr', 'usd', 'rub'].forEach(id => {
     const input = document.getElementById(id);
     input.addEventListener('input', onInputChange);
